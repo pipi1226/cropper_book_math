@@ -3,7 +3,8 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
-img = cv2.imread('011.jpg')
+# img = cv2.imread('img/011.jpg')
+img = cv2.imread('thresh.jpg')
 mser = cv2.MSER_create(_min_area=300)
 # mser = cv2.MSER_create(_min_area=500)
 
@@ -17,6 +18,6 @@ for box in boxes:
     x, y, w, h = box
     cv2.rectangle(img, (x,y),(x+w, y+h), (255, 0, 0), 2)
 
-plt.imshow(img,'brg')
+plt.imshow(img,'test')
 plt.show()
 cv2.imwrite('result.jpg', img)

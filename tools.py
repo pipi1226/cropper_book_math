@@ -2,6 +2,7 @@
 # --------------------------------------------------------
 # FootDetect
 # 2016-08-25
+# a4 210mm x 297mm
 # --------------------------------------------------------
 
 import os, sys, cv2
@@ -258,7 +259,7 @@ def getCanny(img, edgeTh, multiple, iterCany=1, dilateWid=5, dilateHei=5, erodeW
         imgGCanny = cv2.Canny(imgG, edgeTh, edgeTh * multiple, iterCany)
         imgCanny = imgRCanny + imgBCanny
         imgCanny = imgCanny + imgGCanny
-        cv2.imwrite('beforecannycard.jpg', imgCanny)
+        #cv2.imwrite('beforecannycard.jpg', imgCanny)
 
         # dilate canny picture
 
@@ -289,6 +290,6 @@ def getCanny(img, edgeTh, multiple, iterCany=1, dilateWid=5, dilateHei=5, erodeW
             _, imgThresh = cv2.threshold(imgCannyDil, 0, 255, cv2.THRESH_BINARY)
             imgCannyDil = (255 - imgThresh)
 
-    cv2.imwrite('cannydil.jpg', imgCannyDil)
+    #cv2.imwrite('cannydil.jpg', imgCannyDil)
 
     return imgCanny, imgCannyDil
