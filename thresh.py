@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 
 import tools as tl
 
-img = cv2.imread('011.JPG',1)
+img = cv2.imread('0.jpg',1)
 
 imgR, imgG, imgB = cv2.split(img)
 
