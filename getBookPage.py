@@ -249,10 +249,12 @@ def judgeIsPageorNot(imgAdd):
     # imgOut = warpPerspective(res, contours[inxMax])
     imgMerge = cv2.merge([dilation2, dilation2, dilation2])
    
-    imgOut = cv2.bitwise_and(imgAdd, imgMerge)
+    # imgOut = cv2.bitwise_and(imgAdd, imgMerge)
     # cv2.imwrite("imgAdd.jpg", imgAdd)
     # cv2.imwrite("contour.jpg", imgOut)
-    return bRet, imgOut
+
+    imgOut = cv2.drawContours(imgAdd, contMax, -1, (255,255,255), 2)
+    return bRet, dilation2
 
 
 if __name__ == '__main__':
@@ -286,8 +288,9 @@ if __name__ == '__main__':
             basecpy = base.copy()
             basecpy[60:h+60,60:w+60]=frame
             # Display the resulting frame
-            cv2.imshow('Frame',basecpy)
+            # cv2.imshow('Frame',basecpy)
             bRet, imgOut = judgeIsPageorNot(basecpy)
+            cv2.imshow('Frame', imgOut)
             if(bRet):
                 pagename = './bookresult/'+str(nPageCnt)+'.jpg'
                 cv2.imwrite(pagename, imgOut)

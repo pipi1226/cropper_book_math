@@ -53,7 +53,7 @@ def detectWhiteHSV(imgAdd, HMin, SMin, VMin, HMax, SMax, VMax):
     return res
 
 if __name__ == '__main__':
-    imagePath = './0.jpg'
+    imagePath = './1.jpg'
     img= cv2.imread(imagePath,1)
 
     cv2.namedWindow('Track Bar', cv2.WINDOW_NORMAL)
@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
         # 蓝色区域的HSV值范围
         hsv_low = [HMin, SMin, VMin]
-        hsv_high = [HMax, SMax, SMax]
+        hsv_high = [HMax, SMax, VMax]
 
         # 通过设置的范围，去除不要的区域
         
