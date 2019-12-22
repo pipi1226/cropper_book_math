@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-img = cv2.imread('0.JPG', 1)
+img = cv2.imread('1900.jpg', 1)
 
 # res = np.asarray(img, np.float32)
 # cv2.imwrite('res.jpg', res)

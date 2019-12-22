@@ -9,6 +9,8 @@ from inspect import currentframe, getframeinfo
 
 import tools as tl
 
+import glob
+
 frameinfo = getframeinfo(currentframe())
 
 HMin = 0
@@ -148,74 +150,126 @@ def computeSimilar(imgPrev, imgNext):
     else:
         return 0
 
+# initialize the list of reference points and boolean indicating
+# whether cropping is being performed or not
+refPt = []
+cropping = False
+bSel = 0
+mask = []
+
+
+def click_and_crop(event, x, y, flags, param):
+    
+    # grab references to the global variables
+	global refPt, cropping
+    
+    # imgCpy = image.copy()
+
+	# if the left mouse button was clicked, record the starting
+	# (x, y) coordinates and indicate that cropping is being
+	# performed
+	if(event == cv2.EVENT_LBUTTONDOWN):
+		refPt = [(x, y)]
+		cropping = True
+ 
+	# check to see if the left mouse button was released
+	elif(event == cv2.EVENT_LBUTTONUP):
+		# record the ending (x, y) coordinates and indicate that
+		# the cropping operation is finished
+		refPt.append((x, y))
+		cropping = False
+        # draw a rectangle around the region of interest
+		cv2.rectangle(imgCpy, refPt[0], refPt[1], (0, 255, 0), 2)
+		cv2.imshow('Frame', imgCpy)
+
+    # elif(event == cv2.EVENT_MOUSEMOVE):
+    #     cv2.rectangle(imgCpy, refPt[0], [(x,y)], (0, 255, 0), 2)
+    #     cv2.imshow('Frame', imgCpy)
+		
+    # print 'display image rect.'
+
+def click_and_crop_roi(event, x, y, flags, param):
+    
+    # grab references to the global variables
+	global refPt, cropping, bSel, mask
+
+    
+    # imgCpy = image.copy()
+
+	# if the left mouse button was clicked, record the starting
+	# (x, y) coordinates and indicate that cropping is being
+	# performed
+	if(event == cv2.EVENT_RBUTTONUP):
+            print 'right button'
+	# check to see if the left mouse button was released
+	elif(event == cv2.EVENT_LBUTTONUP):
+	    # record the ending (x, y) coordinates and indicate that
+	    # the cropping operation is finished
+	    refPt.append((x, y))
+		
+        print 'display image rect.'
 
 if __name__ == '__main__':
 
-    imagePath = './0.jpg'
-    imgOrign= cv2.imread(imagePath,1)
+    global image
 
-    h, w= imgOrign.shape[:2]
+    filenames = [img for img in glob.glob("bookresult/*.jpg")]
 
-    base_size=h+120,w+120,3
-    base=np.zeros(base_size,dtype=np.uint8)
-    cv2.rectangle(base,(0,0),(w+120,h+120),(0,0,0),30) # really thick white rectangle
-    # base[60:h+60,60:w+60]=imgOrign
-    # cv2.imwrite('border.jpg', base)
-    # bRet, imgOut = judgeIsPageorNot(base)
-
-    # pagename = './re'+str(nPageCnt)+'.jpg'
-    # cv2.imwrite(pagename, imgOut)
-
-    cap = cv2.VideoCapture('./mathbooks/1grade.mov')
-    kernel_size = (20,20)
-    nPageCnt = 0
-    if (cap.isOpened()== False): 
-        print("Error opening video stream or file")
-    bCmpFirstRet = 0
+    filenames.sort() # ADD THIS LINE
 
     cv2.namedWindow('Frame', cv2.WINDOW_NORMAL)
-    while(cap.isOpened()):
-        # Capture frame-by-frame
-        ret, frame = cap.read()
-        if ret == True:
-            basecpy = base.copy()
-            basecpy[60:h+60,60:w+60]=frame
-            # Display the resulting frame
-            cv2.imshow('Frame',basecpy)
-            bRet, imgOut = judgeIsPageorNot(basecpy)
-            if(bRet):
-                pagename = './bookresult/'+str(nPageCnt)+'.jpg'
-                if(0 == bCmpFirstRet):
-                    imgPrev = imgOut
-                    imgCur = imgOut
-                    bCmpFirstRet = 1
-                    # cv2.imwrite(pagename, imgOut)
-                    cv2.imshow('Frame', imgOut)
-                else:
-                    bCmpRet = computeSimilar(imgPrev, imgOut)
-                    if(0 == bCmpRet):
-                        imgPrev = imgOut
-                        # cv2.imwrite(pagename, imgOut)
-                        cv2.imshow('Frame', imgOut)
-                
-                # cv2.imwrite(pagename, imgOut)
-                if(nPageCnt>6771):
-                    cv2.imwrite(pagename, imgOut)
-                nPageCnt += 1
-                # if cv2.waitKey(25) & 0xFF == ord('s'):
-                #     cv2.imwrite(pagename, imgOut)
-                
+    cv2.setMouseCallback("Frame", click_and_crop_roi)
 
-            # Press Q on keyboard to  exit
-            if cv2.waitKey(25) & 0xFF == ord('q'):
-                break
-        
-        # Break the loop
-        else: 
+    imagePath = './0.jpg'
+    image= cv2.imread(imagePath,1)
+
+    while True:
+        # if(0 == bSel):
+        #     cv2.imshow('Frame', imgOrign)
+        # else:
+        cv2.imshow('Frame', image)
+
+        print 'display image origin.'
+
+        key = cv2.waitKey(1) & 0xFF
+            
+        # if the 'r' key is pressed, reset the cropping region
+        if(key == ord("r")):
+            image = image.copy()
+            bSel = 1       
+        elif(key == ord('s')):
+            bSel = 0
+            pts = np.array([refPt], np.int32)
+            pts = pts.reshape((-1, 1, 2))
+            mask = np.zeros(image.shape, np.uint8)
+            mask = cv2.polylines(mask, [pts], True, (255, 255, 255))
+            mask2 = cv2.fillPoly(mask, [pts], (255, 255, 255))
+            image1,contours, hierarchy = cv2.findContours(cv2.cvtColor(mask2, cv2.COLOR_BGR2GRAY), cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+            ROIarea = cv2.contourArea(contours[0])
+            ROI = cv2.bitwise_and(mask2, image)
+            image = ROI
+
+        # if the 'c' key is pressed, break from the loop
+        elif(key == ord("c")):
             break
+
+
+    # for imgName in filenames:
+    #     print 'name = ', imgName
+    #     img = cv2.read(imgName, 1)
+    #     h, w= imgOrign.shape[:2]
         
-    # When everything done, release the video capture object
-    cap.release()
+    #     while True:
+    #         cv2.imshow('Frame', img)
+    #         key = cv2.waitKey(1) & 0xFF
+            
+    #         # if the 'r' key is pressed, reset the cropping region
+    #         if(key == ord("r")):
+    #             image = clone.copy()
+
+    #         # if the 'c' key is pressed, break from the loop
+    #         elif(key == ord("c")):
+    #             break
     
     # Closes all the frames
     cv2.destroyAllWindows()
