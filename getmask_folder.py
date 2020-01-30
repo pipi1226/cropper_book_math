@@ -13,6 +13,7 @@ import glob
 
 frameinfo = getframeinfo(currentframe())
 
+# [20200118] cut page manually
 
 # initialize the list of reference points and boolean indicating
 # whether cropping is being performed or not

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# show cut jpg binary result
 import cv2
 import numpy as np
 from skimage import measure
