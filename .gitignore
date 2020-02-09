@@ -3,3 +3,6 @@
 .vscode/*
 bookresult/*
 *.jpg
+*.JPG
+*.pdf
+*.PDF
